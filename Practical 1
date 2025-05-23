@@ -1,0 +1,25 @@
+ P1+ Create a voting system with multiple candidates. Each address can vote only once.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VotingSystem {
+    struct Candidate {
+        string name;
+        uint voteCount;
+    }
+    Candidate[] public candidates;
+    mapping(address => bool) public hasVoted;
+
+    constructor(string[] memory _candidateNames) {
+        for (uint i = 0; i < _candidateNames.length; i++) {
+            candidates.push(Candidate(_candidateNames[i], 0));
+        }
+    }
+
+    function vote(uint _candidateIndex) public {
+        require(!hasVoted[msg.sender], "Already voted");
+        require(_candidateIndex < candidates.length, "Invalid candidate");
+        candidates[_candidateIndex].voteCount++;
+        hasVoted[msg.sender] = true;
+    }
+}
