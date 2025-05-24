@@ -1,0 +1,132 @@
+ P1-Create a voting system with multiple candidates. Each address can vote only once.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VotingSystem {
+    struct Candidate {
+        string name;
+        uint voteCount;
+    }
+    Candidate[] public candidates;
+    mapping(address => bool) public hasVoted;
+
+    constructor(string[] memory _candidateNames) {
+        for (uint i = 0; i < _candidateNames.length; i++) {
+            candidates.push(Candidate(_candidateNames[i], 0));
+        }
+    }
+
+    function vote(uint _candidateIndex) public {
+        require(!hasVoted[msg.sender], "Already voted");
+        require(_candidateIndex < candidates.length, "Invalid candidate");
+        candidates[_candidateIndex].voteCount++;
+        hasVoted[msg.sender] = true;
+    }
+}
+
+P2-Write a contract that manages a list of student records (name, roll number). Allow adding and retrieving student data.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract StudentRecords {
+    struct Student {
+        string name;
+        uint rollNumber;
+    }
+    Student[] public students;
+
+    function addStudent(string memory _name, uint _rollNumber) public {
+        students.push(Student({
+            name: _name,
+            rollNumber: _rollNumber
+        }));
+    }
+
+    function getStudent(uint _index) public view returns (string memory, uint) {
+        require(_index < students.length, "Invalid index");
+        return (students[_index].name, students[_index].rollNumber);
+    }
+}
+
+P3-Develop a contract that only allows the deployer (owner) to call a specific function (use modifiers).
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract OwnerOnlyFunction {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function restrictedFunction() public onlyOwner {
+        // Only owner can call this
+    }
+}
+
+p4-Write a contract where people can donate Ether and the top 3 donors are tracked.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TopDonors {
+    struct Donor {
+        address addr;
+        uint amount;
+    }
+    Donor[3] public topDonors;
+
+    function donate() public payable {
+        uint donation = msg.value;
+        require(donation > 0, "Donation must be > 0");
+
+        for (uint i = 0; i < 3; i++) {
+            if (donation > topDonors[i].amount) {
+                for (uint j = 2; j > i; j--) {
+                    topDonors[j] = topDonors[j-1];
+                }
+                topDonors[i] = Donor(msg.sender, donation);
+                break;
+            }
+        }
+    }
+}
+
+P5-Implement a simple auction system where users can place bids, and the highest bidder wins.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleAuction {
+    address public highestBidder;
+    uint public highestBid;
+
+    function bid() public payable {
+        require(msg.value > highestBid, "Bid too low");
+        highestBid = msg.value;
+        highestBidder = msg.sender;
+    }
+}
+
+P-6 reate a contract that splits incoming Ether between 3 fixed addresses.
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract EtherSplitter {
+    address[3] public recipients;
+
+    constructor(address[3] memory _recipients) {
+        recipients = _recipients;
+    }
+
+    function split() public payable {
+        require(msg.value > 0, "Send ETH first");
+        uint amountPerRecipient = msg.value / 3;
+        payable(recipients[0]).transfer(amountPerRecipient);
+        payable(recipients[1]).transfer(amountPerRecipient);
+        payable(recipients[2]).transfer(amountPerRecipient);
+    }
+}
